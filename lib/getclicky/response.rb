@@ -1,4 +1,5 @@
 require "hashie"
+require "json"
 
 module Getclicky
   class Response
@@ -11,7 +12,7 @@ module Getclicky
     self.mash_class = ::Hashie::Mash
     
     def initialize(item, format = nil)
-      @item = item
+      @item = JSON(item)
       @format = format
     end
       
@@ -22,7 +23,7 @@ module Getclicky
     def mashify_data
       if @item.size.eql?(1)
         parse(@item.first['dates'])
-      elsif @item.size > 1
+      elsif @item.size > 1 && @item.respond_to?('collect')
         {}.tap do |results|
           @item.collect { |r| results[r['type'].intern] = parse(r['dates']) }
         end
